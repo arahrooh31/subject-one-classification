@@ -1,23 +1,79 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct  8 09:51:14 2019
+Created on Tue Feb 25 11:13:30 2020
 
-@author: Al Rahrooh
+@author: admin
 """
 
-from sklearn.model_selection import train_test_split
-
-#combine row wise 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-X1_transformed = pd.DataFrame(X1_transformed)
-X2_transformed = pd.DataFrame(X2_transformed)
-X3_transformed = pd.DataFrame(X3_transformed)
-X4_transformed = pd.DataFrame(X4_transformed)
-X5_transformed = pd.DataFrame(X5_transformed)
+#reading in the data
 
-X = pd.concat([X1_transformed, X2_transformed, X3_transformed, X4_transformed, X5_transformed])
+df_S1_50 = pd.read_csv('S1_50.csv')
+df_S1_75 = pd.read_csv('S1_75.csv')
+df_S1_100 = pd.read_csv('S1_100.csv')
+df_S1_125 = pd.read_csv('S1_125.csv')
+df_S1_SP = pd.read_csv('S1_SP.csv')
+
+
+
+df_S1_50 = np.array(df_S1_50)
+df_S1_50 = np.transpose(df_S1_50)
+df_S1_50 = pd.DataFrame(df_S1_50)
+df_S1_50_1 = df_S1_50[50000:100000]
+
+
+df_S1_75 = np.array(df_S1_75)
+df_S1_75 = np.transpose(df_S1_75)
+df_S1_75 = pd.DataFrame(df_S1_75)
+df_S1_75_1 = df_S1_75[50000:100000]
+
+
+df_S1_100 = np.array(df_S1_100)
+df_S1_100 = np.transpose(df_S1_100)
+df_S1_100 = pd.DataFrame(df_S1_100)
+df_S1_100_1 = df_S1_100[50000:100000]
+
+
+df_S1_125 = np.array(df_S1_125)
+df_S1_125 = np.transpose(df_S1_125)
+df_S1_125 = pd.DataFrame(df_S1_125)
+df_S1_125_1 = df_S1_125[50000:100000]
+
+
+df_S1_SP = np.array(df_S1_SP)
+df_S1_SP = np.transpose(df_S1_SP)
+df_S1_SP = pd.DataFrame(df_S1_SP)
+df_S1_SP_1 = df_S1_SP[50000:100000]
+
+
+
+df_S1_50_1 = df_S1_50_1.T
+df_S1_75_1 = df_S1_75_1.T
+df_S1_100_1 = df_S1_100_1.T
+df_S1_125_1 = df_S1_125_1.T
+df_S1_SP_1 = df_S1_SP_1.T
+
+
+
+#Converting back to numpy array
+df_S1_50_1 = np.array(df_S1_50_1)
+df_S1_75_1 = np.array(df_S1_75_1)
+df_S1_100_1 = np.array(df_S1_100_1)
+df_S1_125_1 = np.array(df_S1_125_1)
+df_S1_SP_1 = np.array(df_S1_SP_1)
+
+
+X = np.vstack((df_S1_50_1, df_S1_75_1))
+X = np.vstack((X, df_S1_100_1))
+X = np.vstack((X, df_S1_125_1))
+X = np.vstack((X, df_S1_SP_1))
+
+
+
+#Dimension is now 640 x 128
+
 
 df_speed1 = pd.DataFrame(["Speed1"])
 df_speed1 = pd.concat([df_speed1]*127)
@@ -35,15 +91,16 @@ df_speed5 = pd.DataFrame(["Speed5"])
 df_speed5 = pd.concat([df_speed5]*127)
 
 y = pd.concat([df_speed1,df_speed2,df_speed3,df_speed4,df_speed5])
-y = np.array(y)
 
+y = np.array(y)
 X = np.array(X)
-#split data into 80% training and 20% testing
+
+from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2)
 
 
-# Bagged Decision Trees for Classification
 from sklearn import model_selection
+from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 
@@ -125,5 +182,3 @@ gnb.fit(X_train, y_train)
 y_pred = gnb.predict(X_test)
 
 confusion_matrix(y_test,y_pred)
-
-

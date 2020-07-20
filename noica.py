@@ -1,21 +1,70 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct  8 09:51:14 2019
+Created on Thu Feb 20 11:15:54 2020
 
 @author: Al Rahrooh
 """
 
-from sklearn.model_selection import train_test_split
-
-#combine row wise 
-import numpy as np
+#dimension reduction is 128 x 5 for Self Paced
 import pandas as pd
+from random import sample
+import numpy as np
 
-X1_transformed = pd.DataFrame(X1_transformed)
-X2_transformed = pd.DataFrame(X2_transformed)
-X3_transformed = pd.DataFrame(X3_transformed)
-X4_transformed = pd.DataFrame(X4_transformed)
-X5_transformed = pd.DataFrame(X5_transformed)
+#dimension reduction is 128 x 5 for Speed 50
+
+df_S1_50 = pd.read_csv('S1_50.csv')
+df_S1_50 = df_S1_50.transpose()
+df_S1_50_1 = df_S1_50[50000:100000]
+
+subset_50 = df_S1_50_1.sample(n=5)
+subset_Speed50_S1 = subset_50.transpose() 
+
+
+#dimension reduction is 128 x 5 for Speed 75
+
+df_S1_75 = pd.read_csv('S1_75.csv')
+df_S1_75 = df_S1_75.transpose()
+df_S1_75_1 = df_S1_75[50000:100000]
+
+
+subset_75 = df_S1_75_1.sample(n=5)
+subset_Speed75_S1 = subset_75.transpose() 
+
+
+#dimension reduction is 128 x 5 for Speed 100
+
+df_S1_100 = pd.read_csv('S1_100.csv')
+df_S1_100 = df_S1_100.transpose()
+df_S1_100_1 = df_S1_100[50000:100000]
+
+subset_100 = df_S1_100_1.sample(n=5)
+subset_Speed100_S1 = subset_100.transpose() 
+
+
+#dimension reduction is 128 x 5 for Speed 125
+df_S1_125 = pd.read_csv('S1_125.csv')
+df_S1_125 = df_S1_125.transpose()
+df_S1_125_1 = df_S1_125[50000:100000]
+
+subset_125 = df_S1_125_1.sample(n=5)
+subset_Speed125_S1 = subset_125.transpose() 
+
+
+#self paced
+df_S1_SP = pd.read_csv('S1_SP.csv')
+df_S1_SP = df_S1_SP.transpose()
+df_S1_SP_1 = df_S1_SP[50000:100000]
+
+subset_SP = df_S1_SP_1.sample(n=5)
+subset_SP_S1 = subset_SP.transpose()   
+
+
+###transforming
+X1_transformed = pd.DataFrame(subset_Speed50_S1)
+X2_transformed = pd.DataFrame(subset_Speed75_S1)
+X3_transformed = pd.DataFrame(subset_Speed100_S1)
+X4_transformed = pd.DataFrame(subset_Speed125_S1)
+X5_transformed = pd.DataFrame(subset_SP_S1)
 
 X = pd.concat([X1_transformed, X2_transformed, X3_transformed, X4_transformed, X5_transformed])
 
@@ -35,22 +84,23 @@ df_speed5 = pd.DataFrame(["Speed5"])
 df_speed5 = pd.concat([df_speed5]*127)
 
 y = pd.concat([df_speed1,df_speed2,df_speed3,df_speed4,df_speed5])
-y = np.array(y)
 
+y = np.array(y)
 X = np.array(X)
-#split data into 80% training and 20% testing
+
+from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2)
 
 
-# Bagged Decision Trees for Classification
 from sklearn import model_selection
+from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 seed = 128
 kfold = model_selection.KFold(n_splits=10, random_state=seed)
 cart = DecisionTreeClassifier()
-num_trees = 100
+num_trees = 50
 model = BaggingClassifier(base_estimator=cart, n_estimators=num_trees, random_state=seed)
 
 y_pred = model.fit(X_train, y_train).predict(X_test)
@@ -64,7 +114,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 
 seed = 128
-num_trees = 100
+num_trees = 50
 max_features = 5
 kfold = model_selection.KFold(n_splits=10, random_state=seed)
 model = RandomForestClassifier(n_estimators=num_trees, max_features=max_features)
@@ -100,7 +150,7 @@ y_pred = model.fit(X_train,y_train).predict(X_test)
 confusion_matrix(y_test,y_pred)
 
 
-# SVM Classification
+# SVM Classification linear
 from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
@@ -110,6 +160,15 @@ classifier = svm.SVC(kernel='linear', C=0.50)
 y_pred = classifier.fit(X_train, y_train).predict(X_test)
 confusion_matrix(y_test, y_pred)
 
+# SVM Classification rbf
+from sklearn import svm
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+
+
+classifier = svm.SVC(kernel='rbf', C=0.50)
+y_pred = classifier.fit(X_train, y_train).predict(X_test)
+confusion_matrix(y_test, y_pred)
 
 # Gaussian Classification
 from sklearn.naive_bayes import GaussianNB
@@ -125,5 +184,7 @@ gnb.fit(X_train, y_train)
 y_pred = gnb.predict(X_test)
 
 confusion_matrix(y_test,y_pred)
+
+
 
 
